@@ -4246,6 +4246,30 @@ class TestS3(tm.TestCase):
         tm.assert_frame_equal(pd.read_csv(tm.get_data_path('tips.csv')), df)
 
     @tm.network
+    def test_parse_public_s3_bucket_nrows(self):
+        import nose.tools as nt
+        df = pd.read_csv('s3://nyqpug/tips.csv', nrows=10)
+        nt.assert_true(isinstance(df, pd.DataFrame))
+        nt.assert_false(df.empty)
+        tm.assert_frame_equal(pd.read_csv(tm.get_data_path('tips.csv')).iloc[:10], df)
+
+    @tm.network
+    def test_parse_public_s3_bucket_python(self):
+        import nose.tools as nt
+        df = pd.read_csv('s3://nyqpug/tips.csv', engine="python")
+        nt.assert_true(isinstance(df, pd.DataFrame))
+        nt.assert_false(df.empty)
+        tm.assert_frame_equal(pd.read_csv(tm.get_data_path('tips.csv')), df)
+
+    @tm.network
+    def test_parse_public_s3_bucket_nrows_python(self):
+        import nose.tools as nt
+        df = pd.read_csv('s3://nyqpug/tips.csv', engine="python", nrows=10)
+        nt.assert_true(isinstance(df, pd.DataFrame))
+        nt.assert_false(df.empty)
+        tm.assert_frame_equal(pd.read_csv(tm.get_data_path('tips.csv')).iloc[:10], df)
+
+    @tm.network
     def test_s3_fails(self):
         import boto
         with tm.assertRaisesRegexp(boto.exception.S3ResponseError,
