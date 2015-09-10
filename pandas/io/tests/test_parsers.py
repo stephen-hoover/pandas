@@ -4254,6 +4254,15 @@ class TestS3(tm.TestCase):
         tm.assert_frame_equal(pd.read_csv(tm.get_data_path('tips.csv')).iloc[:10], df)
 
     @tm.network
+    def test_parse_public_s3n_bucket(self):
+        # Read from AWS s3 as "s3n" URL
+        import nose.tools as nt
+        df = pd.read_csv('s3n://nyqpug/tips.csv', nrows=10)
+        nt.assert_true(isinstance(df, pd.DataFrame))
+        nt.assert_false(df.empty)
+        tm.assert_frame_equal(pd.read_csv(tm.get_data_path('tips.csv')).iloc[:10], df)
+
+    @tm.network
     def test_parse_public_s3_bucket_python(self):
         import nose.tools as nt
         df = pd.read_csv('s3://nyqpug/tips.csv', engine="python")
