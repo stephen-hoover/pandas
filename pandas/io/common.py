@@ -199,6 +199,10 @@ def get_filepath_or_buffer(filepath_or_buffer, encoding=None,
                 self.finished_read = True
                 return super(OnceThroughKey, self).close(*args, **kwargs)
 
+            def seekable(self):
+                """Needed for reading by bz2"""
+                return False
+
             def readline(self):
                 if self.lines:
                     retval = self.lines[0]
