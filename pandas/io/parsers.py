@@ -235,10 +235,20 @@ def _read(filepath_or_buffer, kwds):
     if skipfooter is not None:
         kwds['skip_footer'] = skipfooter
 
+    # If the input could be a filename, check for a recognizable compression extension.
+    if kwds.get('compression') == 'infer':
+        if isinstance(filepath_or_buffer, compat.string_types):
+            if filepath_or_buffer.endswith('.gz'):
+                kwds['compression'] = 'gzip'
+            elif filepath_or_buffer.endswith('.bz2'):
+                kwds['compression'] = 'bz2'
+
     filepath_or_buffer, _, compression = get_filepath_or_buffer(filepath_or_buffer,
                                                                 encoding,
                                                                 compression=kwds.get('compression', None))
-    kwds['compression'] = compression
+    # If we haven't figured out the compression yet, we aren't going to.
+    # Change 'infer' to None.
+    kwds['compression'] = None if compression == 'infer' else compression
 
     if kwds.get('date_parser', None) is not None:
         if isinstance(kwds['parse_dates'], bool):
@@ -1401,17 +1411,6 @@ class PythonParser(ParserBase):
         self.thousands = kwds['thousands']
         self.comment = kwds['comment']
         self._comment_lines = []
-
-        if self.compression == 'infer':
-            if isinstance(f, compat.string_types):
-                if f.endswith('.gz'):
-                    self.compression = 'gzip'
-                elif f.endswith('.bz2'):
-                    self.compression = 'bz2'
-                else:
-                    self.compression = None
-            else:
-                self.compression = None
 
         if isinstance(f, compat.string_types):
             f = com._get_handle(f, 'r', encoding=self.encoding,
